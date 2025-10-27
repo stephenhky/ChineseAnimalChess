@@ -127,10 +127,14 @@ class Piece(ABC):
         return (self < other) or (self == other)
 
     def can_eat(self, other: Self) -> bool:
-        return self >= other       # rule needed to be overriden for rat
+        return (self.player is not other.player) and (self >= other)       # rule needed to be overriden for rat
 
     def die(self):
         self._dead = True
+
+    @property
+    def player(self) -> Player:
+        return self._player
 
     @property
     def dead(self) -> bool:
