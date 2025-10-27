@@ -182,7 +182,7 @@ river_jumping_movement_set = {
 
 class TigerPiece(Piece):
     def _animal_type(self) -> AnimalType:
-        return AnimalType.Tiger
+        return AnimalType.TIGER
 
     def _livable_in_square_types(self) -> set[SquareType]:
         return {SquareType.LAND, SquareType.TRAP}
