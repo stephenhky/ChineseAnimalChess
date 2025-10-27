@@ -2,9 +2,16 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Self
-from dataclasses import dataclass
+import warnings
+
+import numpy as np
+from loguru import logger
 
 from .player import Player
+
+
+BOARD_WIDTH = 7
+BOARD_HEIGHT = 9
 
 
 class AnimalType(Enum):   # specify the food chain
@@ -18,10 +25,68 @@ class AnimalType(Enum):   # specify the food chain
     ELEPHANT = 8
 
 
+class SquareType(Enum):
+    LAND = 1
+    WATER = 2
+    TRAP = 3
+    CAVE = 4
+
+
+class AnimalChessBoardMap:    # this is a singleton
+    def __init__(self):
+        self._board = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=np.int8)
+        self._board.fill(SquareType.LAND.value)
+        self._board[0, 2] = SquareType.TRAP.value
+        self._board[0, 3] = SquareType.CAVE.value
+        self._board[0, 4] = SquareType.TRAP.value
+        self._board[1, 3] = SquareType.TRAP.value
+        self._board[8, 2] = SquareType.TRAP.value
+        self._board[8, 3] = SquareType.CAVE.value
+        self._board[8, 4] = SquareType.TRAP.value
+        self._board[7, 3] = SquareType.TRAP.value
+        for col in [1, 2, 4, 5]:
+            for row in range(3, 6):
+                self._board[row, col] = SquareType.WATER.value
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, "_instance"):
+            logger.info("Creating new AnimalChessBoardMap instance")
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def get_square_type(self, row: int, col: int) -> SquareType:
+        if row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_WIDTH:
+            raise ValueError("Invalid square position")
+        return SquareType(self._board[row, col])
+
+
 class Piece(ABC):
     def __init__(self, player: Player):
         self._player = player
         self._dead = False
+        self._map = AnimalChessBoardMap()
+
+    def _verify_position_move_within_range(
+            self,
+            initial_position: tuple[int, int],
+            final_position: tuple[int, int]
+    ) -> None:
+        if initial_position[0] < 0 or initial_position[0] >= BOARD_HEIGHT or initial_position[1] < 0 or initial_position[1] >= BOARD_WIDTH:
+            raise ValueError("Invalid initial position")
+        if final_position[0] < 0 or final_position[0] >= BOARD_HEIGHT or final_position[1] < 0 or final_position[1] >= BOARD_WIDTH:
+            raise ValueError("Invalid final position")
+
+    def _verify_initial_positions_livable(
+            self,
+            initial_position: tuple[int, int]
+    ) -> None:
+        try:
+            assert self.livable(self._map.get_square_type(*initial_position))
+        except AssertionError:
+            warnings.warn(f"The initial position must be {', '.join(
+                [animal_type.name for animal_type in self._livable_in_square_types()]
+            )}")
+            raise ValueError("The initial position is not livable.")
 
     @abstractmethod
     def is_valid_move(
@@ -38,6 +103,13 @@ class Piece(ABC):
     @property
     def animal_type(self) -> AnimalType:
         return self._animal_type()
+
+    @abstractmethod
+    def _livable_in_square_types(self) -> set[SquareType]:
+        raise NotImplemented()    # must not include AnimalType.CAVE
+
+    def livable(self, square_type: SquareType) -> bool:
+        return square_type in self._livable_in_square_types()
 
     def __gt__(self, other: Self) -> bool:
         return self.animal_type.value > other.animal_type.value
@@ -65,8 +137,4 @@ class Piece(ABC):
         return self._dead
 
 
-class SquareType(Enum):
-    LAND = 1
-    WATER = 2
-    TRAP = 3
-    CAVE = 4
+
