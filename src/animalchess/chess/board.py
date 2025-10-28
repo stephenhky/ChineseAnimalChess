@@ -80,7 +80,7 @@ class AnimalChessBoard:
             for animal_piece_info in possession.iterate_living_pieces():
                 self._board[*animal_piece_info.position] = animal_piece_info.piece
 
-    def any_piece_in_between(
+    def _any_pieces_in_between(
         self,
         initial_position: tuple[int, int],
         destination_position: tuple[int, int]
@@ -98,6 +98,18 @@ class AnimalChessBoard:
         else:
             warnings.warn("Cannot check as it is not horizontal or vertical.")
         return False
+
+    def _simply_move(
+            self,
+            player_id: Literal[0, 1],
+            animal: AnimalType,
+            destination: tuple[int, int]
+    ) -> None:
+        piece_info = self._players_possessions[player_id].get_piece(animal)
+        initial_position = piece_info.position
+        self._board[*initial_position] = None
+        piece_info.position = destination
+        self._board[*destination] = piece_info
                 
     def move_piece(
             self,
@@ -116,12 +128,13 @@ class AnimalChessBoard:
             logger.info("Not a valid move.")
             return False
 
-        if self.any_piece_in_between(initial_position, destination):
+        if self._any_pieces_in_between(initial_position, destination):
             logger.info("There are pieces in between.")
             return False
 
         if self._board[*destination] is not None and isinstance(self._board[*destination], PieceInformation):
-            destination_piece = self._board[*destination].piece
+            destination_piece_info = self._board[*destination]
+            destination_piece = destination_piece_info.piece
             if not piece.can_eat(destination_piece):
                 logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
                 return False
@@ -129,16 +142,11 @@ class AnimalChessBoard:
                 # eat
                 logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name}!")
                 destination_piece.die()
-                self._board[*destination].position = None
-                
-                piece_info.position = destination
-                self._board[*initial_position] = None
-                self._board[*destination] = piece_info
+                destination_piece_info.position = None
 
+                self._simply_move(player_id, animal, destination)
                 return True
 
         # simple move
-        self._board[*initial_position] = None
-        piece_info.position = destination
-        self._board[*destination] = piece_info
+        self._simply_move(player_id, animal, destination)
         return True
