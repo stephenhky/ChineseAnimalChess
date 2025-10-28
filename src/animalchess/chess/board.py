@@ -1,6 +1,7 @@
 
 from typing import Literal, Generator
 from dataclasses import dataclass
+import warnings
 
 import numpy as np
 from loguru import logger
@@ -39,7 +40,7 @@ class PlayerPossession:
         else:
             self._pieces = {
                 AnimalType.LION: PieceInformation(LionPiece(self.player), (8, 6)),
-                AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (8, 0),
+                AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (8, 0)),
                 AnimalType.DOG: PieceInformation(DogPiece(self.player), (7, 5)),
                 AnimalType.CAT: PieceInformation(CatPiece(self.player), (7, 1)),
                 AnimalType.RAT: PieceInformation(RatPiece(self.player), (6, 6)),
@@ -79,6 +80,25 @@ class AnimalChessBoard:
             for animal_piece_info in possession.iterate_living_pieces():
                 self._board[*animal_piece_info.position] = animal_piece_info.piece
 
+    def any_piece_in_between(
+        self,
+        initial_position: tuple[int, int],
+        destination_position: tuple[int, int]
+    ) -> bool:
+        if initial_position[0] == destination_position[0]:
+            x = initial_position[0]
+            for y in range(initial_position[1], destination_position[1], 1 if destination_position[1] > initial_position[1] else -1):
+                if self._board[x, y] is not None and isinstance(self._board[x, y], PieceInformation):
+                    return True
+        elif initial_position[1] == destination_position[1]:
+            y = initial_position[1]
+            for x in range(initial_position[0], destination_position[0], 1 if destination_position[0] > initial_position[0] else -1):
+                if self._board[x, y] is not None and isinstance(self._board[x, y], PieceInformation):
+                    return True
+        else:
+            warnings.warn("Cannot check as it is not horizontal or vertical.")
+        return False
+                
     def move_piece(
             self,
             player_id: Literal[0, 1],
@@ -86,12 +106,39 @@ class AnimalChessBoard:
             destination: tuple[int, int]
     ) -> bool:   # success: True; failed: False
         piece_info = self._players_possessions[player_id].get_piece(animal)
-        if piece_info.piece.dead:
-            logger.info(f"Player {self._players_possessions[player_id].player.name}: {piece_info.piece.animal_type.name} is dead")
+        piece = piece_info.piece
+        if piece.dead:
+            logger.info(f"Player {self._players_possessions[player_id].player.name}: {piece.animal_type.name} is dead")
             return False
 
-        if not piece_info.piece.is_valid_move():
+        initial_position = piece_info.position
+        if not piece.is_valid_move(initial_position, destination):
             logger.info("Not a valid move.")
             return False
 
+        if self.any_piece_in_between(initial_position, destination):
+            logger.info("There are pieces in between.")
+            return False
 
+        if self._board[*destination] is not None and isinstance(self._board[*destination], PieceInformation):
+            destination_piece = self._board[*destination].piece
+            if not piece.can_eat(destination_piece):
+                logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
+                return False
+            else:
+                # eat
+                logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name}!")
+                destination_piece.die()
+                self._board[*destination].position = None
+                
+                piece_info.position = destination
+                self._board[*initial_position] = None
+                self._board[*destination] = piece_info
+
+                return True
+
+        # simple move
+        self._board[*initial_position] = None
+        piece_info.position = destination
+        self._board[*destination] = piece_info
+        return True
