@@ -1,7 +1,12 @@
 
-from typing import Self
+from typing import Self, Literal, Generator
+from dataclasses import dataclass
 
-from .utils import SquareType, Piece, AnimalType
+import numpy as np
+
+from .utils import SquareType, Piece, AnimalType, AnimalChessBoardMap
+from .utils import BOARD_HEIGHT, BOARD_WIDTH
+from .player import Player
 
 
 class RatPiece(Piece):
@@ -272,3 +277,73 @@ class ElephantPiece(Piece):
             return abs(initial_position[0] - final_position[0]) == 1
         else:
             return False
+
+
+@dataclass
+class PieceInformation:
+    piece: Piece
+    position: tuple[int, int]
+    alive: bool = True
+
+
+class PlayerPossession:
+    def __init__(self, player: Player, id: Literal[0, 1], reset: bool = True):
+        self._player = player
+        self._pieces = {}
+        if reset:
+            self.initialize_pieces(id)
+
+    def initialize_pieces(self, id: Literal[0, 1]):
+        if id == 0:
+            self._pieces = {
+                AnimalType.LION: PieceInformation(LionPiece(self.player), (0, 0)),
+                AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (0, 7)),
+                AnimalType.DOG: PieceInformation(DogPiece(self.player), (1, 1)),
+                AnimalType.CAT: PieceInformation(CatPiece(self.player), (1, 5)),
+                AnimalType.RAT: PieceInformation(RatPiece(self.player), (2, 0)),
+                AnimalType.LEOPARD: PieceInformation(LeopardPiece(self.player), (2, 2)),
+                AnimalType.WOLF: PieceInformation(WolfPiece(self.player), (2, 4)),
+                AnimalType.ELEPHANT: PieceInformation(ElephantPiece(self.player), (2, 6))
+            }
+        else:
+            self._pieces = {
+                AnimalType.LION: PieceInformation(LionPiece(self.player), (8, 6)),
+                AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (8, 0),
+                AnimalType.DOG: PieceInformation(DogPiece(self.player), (7, 5)),
+                AnimalType.CAT: PieceInformation(CatPiece(self.player), (7, 1)),
+                AnimalType.RAT: PieceInformation(RatPiece(self.player), (6, 6)),
+                AnimalType.LEOPARD: PieceInformation(LeopardPiece(self.player), (6, 4)),
+                AnimalType.WOLF: PieceInformation(WolfPiece(self.player), (6, 2)),
+                AnimalType.ELEPHANT: PieceInformation(ElephantPiece(self.player), (6, 0))
+            }
+
+    def get_piece(self, animal: AnimalType) -> PieceInformation:
+        return self._pieces[animal]
+
+    def iterate_living_pieces(self) -> Generator[PieceInformation, None, None]:
+        for animal_piece_info in self._pieces.values():
+            if animal_piece_info.alive:
+                yield animal_piece_info
+
+    @property
+    def player(self) -> Player:
+        return self._player
+
+
+class AnimalChessBoard:
+    def __init__(self, player1: Player, player2: Player):
+        self._map = AnimalChessBoardMap()
+        self._player1 = player1
+        self._player2 = player2
+        self.initialize_board()
+
+    def initialize_board(self) -> None:
+        self._player1_possession = PlayerPossession(self._player1, 0)
+        self._player2_possession = PlayerPossession(self._player2, 1)
+
+        self._board = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=object)
+        for animal_piece_info in self._player1_possession.iterate_living_pieces():
+            self._board[*animal_piece_info.position] = animal_piece_info.piece
+        for animal_piece_info in self._player2_possession.iterate_living_pieces():
+            self._board[*animal_piece_info.position] = animal_piece_info.piece
+
