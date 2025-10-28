@@ -37,7 +37,7 @@ class PlayerPossession:
                 AnimalType.WOLF: PieceInformation(WolfPiece(self.player), (2, 4)),
                 AnimalType.ELEPHANT: PieceInformation(ElephantPiece(self.player), (2, 6))
             }
-        else:
+        else:  # id == 1
             self._pieces = {
                 AnimalType.LION: PieceInformation(LionPiece(self.player), (8, 6)),
                 AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (8, 0)),
