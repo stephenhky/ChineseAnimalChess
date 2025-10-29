@@ -1,6 +1,7 @@
 
 from typing import Literal, Generator
 from dataclasses import dataclass
+from itertools import product
 import warnings
 
 import numpy as np
@@ -25,11 +26,11 @@ class PlayerPossession:
         if reset:
             self.initialize_pieces(id)
 
-    def initialize_pieces(self, id: Literal[0, 1]):
+    def initialize_pieces(self, id: Literal[0, 1]) -> None:
         if id == 0:
             self._pieces = {
                 AnimalType.LION: PieceInformation(LionPiece(self.player), (0, 0)),
-                AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (0, 7)),
+                AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (0, 6)),
                 AnimalType.DOG: PieceInformation(DogPiece(self.player), (1, 1)),
                 AnimalType.CAT: PieceInformation(CatPiece(self.player), (1, 5)),
                 AnimalType.RAT: PieceInformation(RatPiece(self.player), (2, 0)),
@@ -37,7 +38,7 @@ class PlayerPossession:
                 AnimalType.WOLF: PieceInformation(WolfPiece(self.player), (2, 4)),
                 AnimalType.ELEPHANT: PieceInformation(ElephantPiece(self.player), (2, 6))
             }
-        else:  # id == 1
+        elif id == 1:
             self._pieces = {
                 AnimalType.LION: PieceInformation(LionPiece(self.player), (8, 6)),
                 AnimalType.TIGER: PieceInformation(TigerPiece(self.player), (8, 0)),
@@ -48,6 +49,8 @@ class PlayerPossession:
                 AnimalType.WOLF: PieceInformation(WolfPiece(self.player), (6, 2)),
                 AnimalType.ELEPHANT: PieceInformation(ElephantPiece(self.player), (6, 0))
             }
+        else:
+            raise ValueError("Player ID must be 0 or 1!")
 
     def get_piece(self, animal: AnimalType) -> PieceInformation:
         return self._pieces[animal]
@@ -144,9 +147,18 @@ class AnimalChessBoard:
                 destination_piece.die()
                 destination_piece_info.position = None
 
+                # simply move
                 self._simply_move(player_id, animal, destination)
                 return True
 
         # simple move
         self._simply_move(player_id, animal, destination)
         return True
+
+    def get_board_array(self) -> np.ndarray:
+        printboard = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=object)
+        for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
+            if self._board[i, j] is not None:
+                piece = self._board[i, j]
+                printboard[i, j] = f"{piece.player.name}: {piece.animal_type.name}"
+        return printboard
