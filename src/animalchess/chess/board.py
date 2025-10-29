@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 from loguru import logger
 
-from .utils import Piece, AnimalType, AnimalChessBoardMap
+from .utils import Piece, AnimalType, AnimalChessBoardMap, SquareType
 from .utils import BOARD_HEIGHT, BOARD_WIDTH
 from .player import Player
 from .pieces import RatPiece, CatPiece, DogPiece, LeopardPiece, WolfPiece, TigerPiece, LionPiece, ElephantPiece
@@ -20,9 +20,10 @@ class PieceInformation:
 
 
 class PlayerPossession:
-    def __init__(self, player: Player, id: Literal[0, 1], reset: bool = True):
+    def __init__(self, player: Player, id: Literal[0, 1], reset: bool = True, win: bool = False):
         self._player = player
         self._pieces = {}
+        self._winned = win
         if reset:
             self.initialize_pieces(id)
 
@@ -63,6 +64,14 @@ class PlayerPossession:
     @property
     def player(self) -> Player:
         return self._player
+
+    @property
+    def winned(self) -> bool:
+        return self._winned
+
+    @winned.setter
+    def winned(self, win: bool) -> None:
+        self._winned = win
 
 
 class AnimalChessBoard:
@@ -153,8 +162,16 @@ class AnimalChessBoard:
                 self._simply_move(player_id, animal, destination)
                 return True
 
+        # determine if this player wins
+        if self._map[*destination] == SquareType.CAVE:
+            # TODO: this logic has flaw. One must occupy the cave of the opposite side to win;
+            #       otherwise, this is not a valid move.
+            logger.info(f"{self._players_possessions[player_id].player.name} has won!")
+            self._players_possessions[player_id].winned = True
+
         # simple move
         self._simply_move(player_id, animal, destination)
+
         return True
 
     def get_board_array(self) -> np.ndarray:
@@ -163,4 +180,6 @@ class AnimalChessBoard:
             if self._board[i, j] is not None:
                 piece = self._board[i, j]
                 printboard[i, j] = f"{piece.player.name}: {piece.animal_type.name}"
+            else:
+                printboard[i, j] = ""
         return printboard
