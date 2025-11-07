@@ -35,4 +35,4 @@ zip-safe = false
 package-dir = {"" = "src"}
 
 [project.optional-dependencies]
-test = []
+test = ["pytest"]
