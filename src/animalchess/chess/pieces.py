@@ -9,7 +9,7 @@ class RatPiece(Piece):
         return AnimalType.RAT
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP, SquareType.WATER}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1, SquareType.WATER}
 
     def is_valid_move(
             self,
@@ -18,6 +18,11 @@ class RatPiece(Piece):
     ) -> bool:
         self._verify_position_move_within_range(initial_position, final_position)
         self._verify_initial_positions_livable(initial_position)
+
+        destination_square_type = self._map.get_square_type(*final_position)
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
+            return False
 
         if initial_position == final_position:
             return False
@@ -41,7 +46,7 @@ class CatPiece(Piece):
         return AnimalType.CAT
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -52,7 +57,7 @@ class CatPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0, SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:
@@ -71,7 +76,7 @@ class DogPiece(Piece):
         return AnimalType.DOG
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -82,7 +87,8 @@ class DogPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:
@@ -101,7 +107,7 @@ class WolfPiece(Piece):
         return AnimalType.WOLF
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -112,7 +118,8 @@ class WolfPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:
@@ -131,7 +138,7 @@ class LeopardPiece(Piece):
         return AnimalType.LEOPARD
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -142,7 +149,8 @@ class LeopardPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:
@@ -185,7 +193,7 @@ class TigerPiece(Piece):
         return AnimalType.TIGER
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -196,7 +204,8 @@ class TigerPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:
@@ -217,7 +226,7 @@ class LionPiece(Piece):
         return AnimalType.LION
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -228,7 +237,8 @@ class LionPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:
@@ -249,7 +259,7 @@ class ElephantPiece(Piece):
         return AnimalType.ELEPHANT
 
     def _livable_in_square_types(self) -> set[SquareType]:
-        return {SquareType.LAND, SquareType.TRAP}
+        return {SquareType.LAND, SquareType.TRAP0, SquareType.TRAP1}
 
     def is_valid_move(
             self,
@@ -260,7 +270,8 @@ class ElephantPiece(Piece):
         self._verify_initial_positions_livable(initial_position)
 
         destination_square_type = self._map.get_square_type(*final_position)
-        if not (self.livable(destination_square_type) or destination_square_type == SquareType.CAVE):
+        if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,
+                                                                                     SquareType.CAVE1}):
             return False
 
         if initial_position == final_position:

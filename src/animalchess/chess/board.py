@@ -20,10 +20,10 @@ class PieceInformation:
 
 
 class PlayerPossession:
-    def __init__(self, player: Player, id: Literal[0, 1], reset: bool = True, win: bool = False):
+    def __init__(self, player: Player, id: Literal[0, 1], reset: bool = True):
         self._player = player
         self._pieces = {}
-        self._winned = win
+        self._winned = False
         if reset:
             self.initialize_pieces(id)
 
@@ -148,10 +148,20 @@ class AnimalChessBoard:
 
         if self._board[*destination] is not None and isinstance(self._board[*destination], Piece):
             destination_piece = self._board[*destination]
-            if not piece.can_eat(destination_piece):
-                logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
-                return False
-            else:
+            destination_squaretype = self._map.get_square_type(*destination)
+
+            if destination_squaretype == (SquareType.TRAP0 if player_id==0 else SquareType.TRAP1):
+                if destination_piece.player is (self._player1 if player_id==0 else self._player0):
+                    # can eat because the piece is in our own trap
+                    logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name} in a trap!")
+                    destination_piece.die()
+                    destination_piece_info = self._players_possessions[player_id].get_piece(destination_piece.animal_type)
+                    destination_piece_info.position = None
+
+                    # simply move
+                    self._simply_move(player_id, animal, destination)
+                    return True
+            elif piece.can_eat(destination_piece) and destination_squaretype == (SquareType.TRAP1 if player_id==0 else SquareType.TRAP0):
                 # eat
                 logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name}!")
                 destination_piece.die()
@@ -161,17 +171,18 @@ class AnimalChessBoard:
                 # simply move
                 self._simply_move(player_id, animal, destination)
                 return True
+            else:
+                logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
+                return False
 
         # determine if this player wins
-        if self._map[*destination] == SquareType.CAVE:
-            # TODO: this logic has flaw. One must occupy the cave of the opposite side to win;
-            #       otherwise, this is not a valid move.
-            logger.info(f"{self._players_possessions[player_id].player.name} has won!")
-            self._players_possessions[player_id].winned = True
+        if self._map.get_square_type(*destination) in {SquareType.CAVE0, SquareType.CAVE1}:
+            if (player_id == 0 and self._map.get_square_type(*destination) == SquareType.CAVE1) or (player_id == 1 and self._map.get_square_type(*destination) == SquareType.CAVE0):
+                logger.info(f"{self._players_possessions[player_id].player.name} has won!")
+                self._players_possessions[player_id].winned = True
 
         # simple move
         self._simply_move(player_id, animal, destination)
-
         return True
 
     def get_board_array(self) -> np.ndarray:

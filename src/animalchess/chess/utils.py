@@ -28,22 +28,24 @@ class AnimalType(Enum):   # specify the food chain
 class SquareType(Enum):
     LAND = 1
     WATER = 2
-    TRAP = 3
-    CAVE = 4
+    TRAP0 = 3
+    TRAP1 = 4
+    CAVE0 = 5
+    CAVE1 = 6
 
 
 class AnimalChessBoardMap:    # this is a singleton
     def __init__(self):
         self._board = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=np.int8)
         self._board.fill(SquareType.LAND.value)
-        self._board[0, 2] = SquareType.TRAP.value
-        self._board[0, 3] = SquareType.CAVE.value
-        self._board[0, 4] = SquareType.TRAP.value
-        self._board[1, 3] = SquareType.TRAP.value
-        self._board[8, 2] = SquareType.TRAP.value
-        self._board[8, 3] = SquareType.CAVE.value
-        self._board[8, 4] = SquareType.TRAP.value
-        self._board[7, 3] = SquareType.TRAP.value
+        self._board[0, 2] = SquareType.TRAP0.value
+        self._board[0, 3] = SquareType.CAVE0.value
+        self._board[0, 4] = SquareType.TRAP0.value
+        self._board[1, 3] = SquareType.TRAP0.value
+        self._board[8, 2] = SquareType.TRAP1.value
+        self._board[8, 3] = SquareType.CAVE1.value
+        self._board[8, 4] = SquareType.TRAP1.value
+        self._board[7, 3] = SquareType.TRAP1.value
         for col in [1, 2, 4, 5]:
             for row in range(3, 6):
                 self._board[row, col] = SquareType.WATER.value
