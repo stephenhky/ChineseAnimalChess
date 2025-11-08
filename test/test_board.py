@@ -149,13 +149,16 @@ class TestAnimalChessBoard(unittest.TestCase):
         
         # Move player 0's cat to a position where it can eat player 1's rat
         # First, move player 1's rat away to make space
-        board.move_piece(1, AnimalType.RAT, (5, 6))  # Move rat from (6,6) to (5,6)
+        moved = board.move_piece(1, AnimalType.RAT, (5, 6))  # Move rat from (6,6) to (5,6)
+        self.assertTrue(moved)
         
         # Move player 0's cat to (4, 5)
-        board.move_piece(0, AnimalType.CAT, (4, 5))
+        moved = board.move_piece(0, AnimalType.CAT, (4, 5))
+        self.assertTrue(moved)
         
         # Move player 1's rat to (5, 5) so cat can eat it
-        board.move_piece(1, AnimalType.RAT, (5, 5))
+        moved = board.move_piece(1, AnimalType.RAT, (5, 5))
+        self.assertTrue(moved)
         
         # Now cat should be able to eat rat
         success = board.move_piece(0, AnimalType.CAT, (5, 5))
