@@ -145,7 +145,11 @@ class TestAnimalChessBoard(unittest.TestCase):
         player1_possession = PlayerPossession(self.player1, 1, reset=False)
         player0_possession.set_piece_info(AnimalType.CAT, (4, 4))
         player1_possession.set_piece_info(AnimalType.RAT, (6, 6))
-        board = AnimalChessBoard(self.player0, self.player1)
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
         
         # Move player 0's cat to a position where it can eat player 1's rat
         # First, move player 1's rat away to make space
