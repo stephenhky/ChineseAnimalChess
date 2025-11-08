@@ -115,11 +115,6 @@ class AnimalChessBoard:
         self.initialize_board()
 
     def initialize_board(self) -> None:
-        self._players_possessions = [
-            PlayerPossession(self._player0, 0),
-            PlayerPossession(self._player1, 1)
-        ]
-
         self._board = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=object)
         for possession in self._players_possessions:
             for animal_piece_info in possession.iterate_living_pieces():
