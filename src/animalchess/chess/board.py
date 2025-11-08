@@ -112,9 +112,9 @@ class AnimalChessBoard:
         else:
             assert len(initial_players_possessions) == 2
             self._players_possessions = initial_players_possessions
-        self.initialize_board()
+        self._initialize_board()
 
-    def initialize_board(self) -> None:
+    def _initialize_board(self) -> None:
         self._board = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=object)
         for possession in self._players_possessions:
             for animal_piece_info in possession.iterate_living_pieces():
