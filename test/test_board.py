@@ -141,20 +141,24 @@ class TestAnimalChessBoard(unittest.TestCase):
 
     def test_basic_eating(self):
         # Create a custom board for eating tests
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.CAT, (4, 4))
+        player1_possession.set_piece_info(AnimalType.RAT, (6, 6))
         board = AnimalChessBoard(self.player0, self.player1)
         
         # Move player 0's cat to a position where it can eat player 1's rat
         # First, move player 1's rat away to make space
         board.move_piece(1, AnimalType.RAT, (5, 6))  # Move rat from (6,6) to (5,6)
         
-        # Move player 0's cat to (5, 5)
-        board.move_piece(0, AnimalType.CAT, (5, 5))
+        # Move player 0's cat to (4, 5)
+        board.move_piece(0, AnimalType.CAT, (4, 5))
         
-        # Move player 1's rat to (5, 4) so cat can eat it
-        board.move_piece(1, AnimalType.RAT, (5, 4))
+        # Move player 1's rat to (5, 5) so cat can eat it
+        board.move_piece(1, AnimalType.RAT, (5, 5))
         
         # Now cat should be able to eat rat
-        success = board.move_piece(0, AnimalType.CAT, (5, 4))
+        success = board.move_piece(0, AnimalType.CAT, (5, 5))
         self.assertTrue(success)
         
         # Verify rat is dead
