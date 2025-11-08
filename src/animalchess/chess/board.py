@@ -53,6 +53,26 @@ class PlayerPossession:
         else:
             raise ValueError("Player ID must be 0 or 1!")
 
+    def set_piece_info(self, animal_type: AnimalType, position: tuple[int, int]):
+        match animal_type:
+            case AnimalType.RAT:
+                piece = RatPiece(self.player)
+            case AnimalType.CAT:
+                piece = CatPiece(self.player)
+            case AnimalType.DOG:
+                piece = DogPiece(self.player)
+            case AnimalType.LEOPARD:
+                piece = LeopardPiece(self.player)
+            case AnimalType.WOLF:
+                piece = WolfPiece(self.player)
+            case AnimalType.TIGER:
+                piece = TigerPiece(self.player)
+            case AnimalType.LION:
+                piece = LionPiece(self.player)
+            case AnimalType.ELEPHANT:
+                piece = ElephantPiece(self.player)
+        self._pieces[animal_type] = PieceInformation(piece, position)
+
     def get_piece(self, animal: AnimalType) -> PieceInformation:
         return self._pieces[animal]
 
@@ -75,10 +95,23 @@ class PlayerPossession:
 
 
 class AnimalChessBoard:
-    def __init__(self, player0: Player, player1: Player):
+    def __init__(
+            self,
+            player0: Player,
+            player1: Player,
+            initial_players_possessions: Optional[list[PlayerPossession]] = None
+    ):
         self._map = AnimalChessBoardMap()
         self._player0 = player0
         self._player1 = player1
+        if initial_players_possessions is None:
+            self._players_possessions = [
+                PlayerPossession(self._player0, 0),
+                PlayerPossession(self._player1, 1)
+            ]
+        else:
+            assert len(initial_players_possessions) == 2
+            self._players_possessions = initial_players_possessions
         self.initialize_board()
 
     def initialize_board(self) -> None:

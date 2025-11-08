@@ -1,7 +1,7 @@
+
 import unittest
-from src.animalchess.chess.utils import AnimalChessBoardMap, SquareType, Piece, AnimalType
-from src.animalchess.chess.player import Player
-import numpy as np
+from animalchess.chess.utils import AnimalChessBoardMap, SquareType, Piece, AnimalType
+from animalchess.chess.player import Player
 
 
 class TestAnimalChessBoardMap(unittest.TestCase):

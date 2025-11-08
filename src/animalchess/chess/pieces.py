@@ -1,5 +1,6 @@
 
 from typing import Self
+import traceback
 
 from .utils import SquareType, Piece, AnimalType
 
@@ -16,8 +17,16 @@ class RatPiece(Piece):
             initial_position: tuple[int, int],
             final_position: tuple[int, int]
     ) -> bool:
-        self._verify_position_move_within_range(initial_position, final_position)
-        self._verify_initial_positions_livable(initial_position)
+        try:
+            self._verify_position_move_within_range(initial_position, final_position)
+        except ValueError:
+            traceback.print_exc()
+            return False
+        try:
+            self._verify_initial_positions_livable(initial_position)
+        except ValueError:
+            traceback.print_exc()
+            return False
 
         destination_square_type = self._map.get_square_type(*final_position)
         if not (self.livable(destination_square_type) or destination_square_type in {SquareType.CAVE0,

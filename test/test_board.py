@@ -1,8 +1,8 @@
+
 import unittest
-from src.animalchess.chess.board import AnimalChessBoard, PlayerPossession
-from src.animalchess.chess.player import Player
-from src.animalchess.chess.utils import AnimalType
-from src.animalchess.chess.pieces import RatPiece, CatPiece, ElephantPiece, TigerPiece, LionPiece
+from animalchess.chess.board import AnimalChessBoard, PlayerPossession
+from animalchess.chess.player import Player
+from animalchess.chess.utils import AnimalType
 
 
 class TestPlayerPossession(unittest.TestCase):

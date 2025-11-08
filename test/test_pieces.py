@@ -1,10 +1,11 @@
+
 import unittest
-from src.animalchess.chess.pieces import (
+from animalchess.chess.pieces import (
     RatPiece, CatPiece, DogPiece, LeopardPiece, 
     WolfPiece, TigerPiece, LionPiece, ElephantPiece
 )
-from src.animalchess.chess.utils import AnimalChessBoardMap, SquareType
-from src.animalchess.chess.player import Player
+from animalchess.chess.utils import AnimalChessBoardMap, SquareType
+from animalchess.chess.player import Player
 
 
 class TestPieces(unittest.TestCase):
