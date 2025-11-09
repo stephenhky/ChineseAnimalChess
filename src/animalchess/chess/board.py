@@ -189,11 +189,11 @@ class AnimalChessBoard:
                     # simply move
                     self._simply_move(player_id, animal, destination)
                     return True
-            elif piece.can_eat(destination_piece) and destination_squaretype == (SquareType.TRAP1 if player_id==0 else SquareType.TRAP0):
+            elif piece.can_eat(destination_piece) and destination_piece.player is (self._player1 if player_id==0 else self._player0):
                 # eat
                 logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name}!")
                 destination_piece.die()
-                destination_piece_info = self._players_possessions[player_id].get_piece(destination_piece.animal_type)
+                destination_piece_info = self._players_possessions[1 if player_id==0 else 0].get_piece(destination_piece.animal_type)
                 destination_piece_info.position = None
 
                 # simply move
