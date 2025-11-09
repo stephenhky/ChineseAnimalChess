@@ -240,18 +240,43 @@ class TestAnimalChessBoard(unittest.TestCase):
         self.assertFalse(success)
 
     def test_river_jumping(self):
-        # Test that tiger can jump over river
-        board = AnimalChessBoard(self.player0, self.player1)
+        # Test that tiger can jump over river (fail (blocked) and successful jump)
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.RAT, (2, 0))
+        player1_possession.set_piece_info(AnimalType.TIGER, (6, 0))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
         
-        # Move player 0's tiger to (3, 0) where it can jump
-        # First clear the path by moving the dog
-        board.move_piece(0, AnimalType.DOG, (2, 1))
+        # first step by player 0
+        moved = board.move_piece(0, AnimalType.RAT, (3, 0))
+        self.assertTrue(moved)
         
-        # Move tiger to (3, 0)
-        board.move_piece(0, AnimalType.TIGER, (3, 0))
-        
-        # Now tiger should be able to jump to (3, 3)
-        success = board.move_piece(0, AnimalType.TIGER, (3, 3))
+        # first step by player 1
+        moved = board.move_piece(1, AnimalType.TIGER, (6, 1))
+        self.assertTrue(moved)
+
+        # second step by player 0
+        moved = board.move_piece(0, AnimalType.RAT, (3, 1))
+        self.assertTrue(moved)
+
+        # attempted jump by player 1's tiger
+        moved = board.move_piece(1, AnimalType.TIGER, (3, 1))
+        self.assertFalse(moved)     # it should fail
+
+        # second step by player 1
+        moved = board.move_piece(1, AnimalType.TIGER, (6, 2))
+        self.assertTrue(moved)
+
+        # third step by player 0
+        moved = board.move_piece(0, AnimalType.RAT, (4, 1))
+        self.assertTrue(moved)
+
+        # third step by player 1 (jump)
+        success = board.move_piece(1, AnimalType.TIGER, (2, 2))
         self.assertTrue(success)
 
     def test_trap_protection(self):
