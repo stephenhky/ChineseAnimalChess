@@ -204,19 +204,31 @@ class TestAnimalChessBoard(unittest.TestCase):
         # Verify elephant is dead
         elephant_piece_info = board._players_possessions[0].get_piece(AnimalType.ELEPHANT)
         self.assertTrue(elephant_piece_info.piece.dead)
+        self.assertIsNone(elephant_piece_info.position)
 
     def test_elephant_cannot_eat_rat(self):
         # Create a custom board for elephant trying to eat rat
-        board = AnimalChessBoard(self.player0, self.player1)
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.RAT, (2, 0))
+        player1_possession.set_piece_info(AnimalType.ELEPHANT, (6, 0))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
         
-        # Move player 0's elephant to (6, 1)
-        board.move_piece(0, AnimalType.ELEPHANT, (6, 1))
+        # Move player 0's rat to (3, 0)
+        board.move_piece(0, AnimalType.RAT, (3, 0))
         
-        # Move player 1's rat to (6, 2)
-        board.move_piece(1, AnimalType.RAT, (6, 2))
+        # Move player 1's elephant to (5, 0)
+        board.move_piece(1, AnimalType.ELEPHANT, (5, 0))
+
+        # Move player 0's rat to (4, 0)
+        board.move_piece(0, AnimalType.RAT, (4, 0))
         
         # Elephant should not be able to eat rat
-        success = board.move_piece(0, AnimalType.ELEPHANT, (6, 2))
+        success = board.move_piece(1, AnimalType.ELEPHANT, (4, 0))
         self.assertFalse(success)
 
     def test_pieces_in_between(self):

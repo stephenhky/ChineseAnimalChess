@@ -292,3 +292,6 @@ class ElephantPiece(Piece):
             return abs(initial_position[0] - final_position[0]) == 1
         else:
             return False
+
+    def can_eat(self, other: Self) -> bool:
+        return (self.player is not other.player) and (other.animal_type != AnimalType.RAT)
