@@ -156,11 +156,11 @@ class TestAnimalChessBoard(unittest.TestCase):
         moved = board.move_piece(1, AnimalType.RAT, (5, 6))  # Move rat from (6,6) to (5,6)
         self.assertTrue(moved)
         
-        # Move player 0's cat to (4, 5)
+        # Move player 0's cat to (3, 6)
         moved = board.move_piece(0, AnimalType.CAT, (3, 6))
         self.assertTrue(moved)
         
-        # Move player 1's rat to (5, 5) so cat can eat it
+        # Move player 1's rat to (4, 6) so cat can eat it
         moved = board.move_piece(1, AnimalType.RAT, (4, 6))
         self.assertTrue(moved)
         
@@ -175,20 +175,34 @@ class TestAnimalChessBoard(unittest.TestCase):
 
     def test_rat_eating_elephant(self):
         # Create a custom board for rat eating elephant test
-        board = AnimalChessBoard(self.player0, self.player1)
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.ELEPHANT, (2, 6))
+        player1_possession.set_piece_info(AnimalType.RAT, (6, 6))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
         
-        # Move player 0's rat to (6, 1)
-        board.move_piece(0, AnimalType.RAT, (6, 1))
+        # Move player 0's elephant to (3, 6)
+        moved = board.move_piece(0, AnimalType.ELEPHANT, (3, 6))
+        self.assertTrue(moved)
         
-        # Move player 1's elephant to (6, 2)
-        board.move_piece(1, AnimalType.ELEPHANT, (6, 2))
+        # Move player 1's rat to (5, 6)
+        moved = board.move_piece(1, AnimalType.RAT, (5, 6))
+        self.assertTrue(moved)
+
+        # Move player 0's elephant to (4, 6)
+        moved = board.move_piece(0, AnimalType.ELEPHANT, (4, 6))
+        self.assertTrue(moved)
         
         # Rat should be able to eat elephant
-        success = board.move_piece(0, AnimalType.RAT, (6, 2))
+        success = board.move_piece(1, AnimalType.RAT, (4, 6))
         self.assertTrue(success)
         
         # Verify elephant is dead
-        elephant_piece_info = board._players_possessions[1].get_piece(AnimalType.ELEPHANT)
+        elephant_piece_info = board._players_possessions[0].get_piece(AnimalType.ELEPHANT)
         self.assertTrue(elephant_piece_info.piece.dead)
 
     def test_elephant_cannot_eat_rat(self):
