@@ -183,7 +183,7 @@ class AnimalChessBoard:
                     # can eat because the piece is in our own trap
                     logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name} in a trap!")
                     destination_piece.die()
-                    destination_piece_info = self._players_possessions[player_id].get_piece(destination_piece.animal_type)
+                    destination_piece_info = self._players_possessions[1 if player_id==0 else 0].get_piece(destination_piece.animal_type)
                     destination_piece_info.position = None
 
                     # simply move

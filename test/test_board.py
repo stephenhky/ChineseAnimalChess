@@ -290,7 +290,7 @@ class TestAnimalChessBoard(unittest.TestCase):
             self.player1,
             initial_players_possessions=[player0_possession, player1_possession]
         )
-        map = AnimalChessBoardMap()
+        boardmap = AnimalChessBoardMap()
 
         # Player 0's first move
         moved = board.move_piece(0, AnimalType.RAT, (0, 1))
@@ -303,7 +303,10 @@ class TestAnimalChessBoard(unittest.TestCase):
         # Player 0's second move, into the trap
         moved = board.move_piece(0, AnimalType.RAT, (0, 2))
         self.assertTrue(moved)
-        self.assertTrue(map.get_square_type(*player0_possession.get_piece(AnimalType.RAT).position) == SquareType.TRAP0)
+        self.assertEqual(
+            boardmap.get_square_type(*player0_possession.get_piece(AnimalType.RAT).position),
+            SquareType.TRAP0
+        )
 
         # Player 1's attempted second move, trying to eat the rat but failing
         eaten = board.move_piece(1, AnimalType.CAT, (0, 2))
@@ -312,39 +315,88 @@ class TestAnimalChessBoard(unittest.TestCase):
 
     def test_trap_vulnerability(self):
         # Test that pieces in opponent's trap are vulnerable
-        board = AnimalChessBoard(self.player0, self.player1)
-        
-        # Move player 0's rat to player 1's trap at (8, 2)
-        board.move_piece(0, AnimalType.RAT, (7, 2))  # Move out of way first
-        board.move_piece(0, AnimalType.RAT, (8, 2))
-        
-        # Move player 1's cat to (8, 1)
-        board.move_piece(1, AnimalType.CAT, (8, 1))
-        
-        # Player 1's cat should be able to eat player 0's rat in the trap
-        success = board.move_piece(1, AnimalType.CAT, (8, 2))
-        self.assertTrue(success)
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.RAT, (0, 0))
+        player1_possession.set_piece_info(AnimalType.CAT, (2, 2))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
+        boardmap = AnimalChessBoardMap()
 
-    def test_win_condition(self):
-        # Test that moving to opponent's cave wins the game
-        board = AnimalChessBoard(self.player0, self.player1)
-        
-        # Move player 0's rat to a position where it can reach player 1's cave
-        # Clear the path first
-        board.move_piece(0, AnimalType.RAT, (1, 0))
-        board.move_piece(0, AnimalType.RAT, (2, 0))
-        board.move_piece(0, AnimalType.RAT, (3, 0))
-        board.move_piece(0, AnimalType.RAT, (4, 0))
-        board.move_piece(0, AnimalType.RAT, (5, 0))
-        board.move_piece(0, AnimalType.RAT, (6, 0))
-        board.move_piece(0, AnimalType.RAT, (7, 0))
-        
-        # Move rat to player 1's cave (8, 3)
-        success = board.move_piece(0, AnimalType.RAT, (8, 3))
-        self.assertTrue(success)
-        
+        # Move player 1's cat
+        moved = board.move_piece(1, AnimalType.CAT, (1, 2))
+        self.assertTrue(moved)
+
+        # Move player 0's rat
+        moved = board.move_piece(0, AnimalType.RAT, (0, 1))
+        self.assertTrue(moved)
+
+        # Move Player 1's cat into the trap
+        moved = board.move_piece(1, AnimalType.CAT, (0, 2))
+        self.assertTrue(moved)
+        self.assertEqual(
+            boardmap.get_square_type(*player1_possession.get_piece(AnimalType.CAT).position),
+            SquareType.TRAP0
+        )
+
+        # Move player 0's rat into the trap to eat the cat
+        self.assertFalse(
+            player0_possession.get_piece(AnimalType.RAT).piece.can_eat(
+                player1_possession.get_piece(AnimalType.CAT).piece
+            )
+        )    # normally the rat cannot eat the cat
+        eaten = board.move_piece(0, AnimalType.RAT, (0, 2))
+        self.assertTrue(eaten)    # yet the rat eat the cat
+        self.assertTrue(player1_possession.get_piece(AnimalType.CAT).piece.dead)   # the cat is head
+
+    def test_player0_win_condition(self):
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.RAT, (8, 2))
+        player1_possession.set_piece_info(AnimalType.CAT, (2, 2))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
+        boardmap = AnimalChessBoardMap()
+
+        # move the rat to the cave of player 1
+        moved = board.move_piece(0, AnimalType.RAT, (8, 3))
+        self.assertTrue(moved)
+        self.assertEqual(
+            boardmap.get_square_type(*player0_possession.get_piece(AnimalType.RAT).position),
+            SquareType.CAVE1
+        )
+
         # Player 0 should have won
         self.assertTrue(board._players_possessions[0].winned)
+
+    def test_player1_win_condition(self):
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.RAT, (8, 2))
+        player1_possession.set_piece_info(AnimalType.CAT, (1, 3))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
+        boardmap = AnimalChessBoardMap()
+
+        # move the cat to the cave of player 0
+        moved = board.move_piece(1, AnimalType.CAT, (0, 3))
+        self.assertTrue(moved)
+        self.assertEqual(
+            boardmap.get_square_type(*player1_possession.get_piece(AnimalType.CAT).position),
+            SquareType.CAVE0
+        )
+
+        # Player 1 should have won
+        self.assertTrue(board._players_possessions[1].winned)
 
     def test_move_dead_piece(self):
         # Test that dead pieces cannot be moved
@@ -354,7 +406,7 @@ class TestAnimalChessBoard(unittest.TestCase):
         rat_piece_info = board._players_possessions[0].get_piece(AnimalType.RAT)
         rat_piece_info.piece.die()
         
-        # Try to move the dead rat
+        # Try to move the dead rat. should fail
         success = board.move_piece(0, AnimalType.RAT, (2, 1))
         self.assertFalse(success)
 
