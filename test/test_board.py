@@ -2,7 +2,7 @@
 import unittest
 from animalchess.chess.board import AnimalChessBoard, PlayerPossession
 from animalchess.chess.player import Player
-from animalchess.chess.utils import AnimalType
+from animalchess.chess.utils import AnimalType, AnimalChessBoardMap, SquareType
 
 
 class TestPlayerPossession(unittest.TestCase):
@@ -280,18 +280,35 @@ class TestAnimalChessBoard(unittest.TestCase):
         self.assertTrue(success)
 
     def test_trap_protection(self):
-        # Test that pieces in their own trap can be eaten
-        board = AnimalChessBoard(self.player0, self.player1)
-        
-        # Move player 1's rat to player 0's trap at (0, 2)
-        board.move_piece(1, AnimalType.RAT, (0, 2))
-        
-        # Move player 0's cat to (0, 1)
-        board.move_piece(0, AnimalType.CAT, (0, 1))
-        
-        # Player 0's cat should be able to eat player 1's rat in the trap
-        success = board.move_piece(0, AnimalType.CAT, (0, 2))
-        self.assertTrue(success)
+        # Test that pieces in their own trap cannot be eaten
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.RAT, (0, 0))
+        player1_possession.set_piece_info(AnimalType.CAT, (2, 2))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
+        map = AnimalChessBoardMap()
+
+        # Player 0's first move
+        moved = board.move_piece(0, AnimalType.RAT, (0, 1))
+        self.assertTrue(moved)
+
+        # Player 1's first move
+        moved = board.move_piece(1, AnimalType.CAT, (1, 2))
+        self.assertTrue(moved)
+
+        # Player 0's second move, into the trap
+        moved = board.move_piece(0, AnimalType.RAT, (0, 2))
+        self.assertTrue(moved)
+        self.assertTrue(map.get_square_type(*player0_possession.get_piece(AnimalType.RAT).position) == SquareType.TRAP0)
+
+        # Player 1's attempted second move, trying to eat the rat but failing
+        eaten = board.move_piece(1, AnimalType.CAT, (0, 2))
+        self.assertFalse(player0_possession.get_piece(AnimalType.RAT).piece.dead)
+        self.assertFalse(eaten)
 
     def test_trap_vulnerability(self):
         # Test that pieces in opponent's trap are vulnerable
