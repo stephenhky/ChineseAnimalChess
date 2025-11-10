@@ -85,9 +85,10 @@ class Piece(ABC):
         try:
             assert self.livable(self._map.get_square_type(*initial_position))
         except AssertionError:
-            warnings.warn(f"The initial position must be {', '.join(
+            livable_squares_string = ", ".join(
                 [animal_type.name for animal_type in self._livable_in_square_types()]
-            )}")
+            )
+            warnings.warn(f"The initial position must be {livable_squares_string}.")
             raise ValueError("The initial position is not livable.")
 
     @abstractmethod
