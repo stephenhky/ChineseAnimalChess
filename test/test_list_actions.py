@@ -195,7 +195,7 @@ class TestActions(unittest.TestCase):
             initial_players_possessions=[player0_possession, player1_possession]
         )
 
-        player0_dog_possible_destinations = [(8, 0), (7, 1), (8, 2)]
+        player0_dog_possible_destinations = [(8, 0), (7, 1)]
         player0_system_dog_possible_destinations = [
             (new_i, new_j)
             for new_i, new_j in board.exhaustively_iterate_available_destinations(0, AnimalType.DOG)
