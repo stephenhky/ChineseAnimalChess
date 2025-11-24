@@ -233,7 +233,7 @@ class TestActions(unittest.TestCase):
             (new_i, new_j)
             for new_i, new_j in board.exhaustively_iterate_available_destinations(1, AnimalType.CAT)
         ]
-        logger.info(player1_system_cat_possible_destinations)
+        print(player1_system_cat_possible_destinations)
         for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
             if (i, j) in player1_cat_possible_destinations:
                 self.assertIn((i, j), player1_system_cat_possible_destinations)
