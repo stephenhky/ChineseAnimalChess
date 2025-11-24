@@ -235,6 +235,7 @@ class TestActions(unittest.TestCase):
         ]
         print(player1_system_cat_possible_destinations)
         board.move_piece(1, AnimalType.CAT, (8, 2))
+        print(board._board[8, 2])
         for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
             if (i, j) in player1_cat_possible_destinations:
                 self.assertIn((i, j), player1_system_cat_possible_destinations)
