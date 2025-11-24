@@ -153,11 +153,12 @@ class AnimalChessBoard:
         piece_info.position = destination
         self._board[*destination] = piece_info.piece
                 
-    def move_piece(
+    def _move_piece_really_or_simulatively(
             self,
             player_id: Literal[0, 1],
             animal: AnimalType,
-            destination: tuple[int, int]
+            destination: tuple[int, int],
+            really: bool = True     # set to True to actually move; set to False when exploring the possibility
     ) -> bool:   # success: True; failed: False
         piece_info = self._players_possessions[player_id].get_piece(animal)
         piece = piece_info.piece
@@ -180,24 +181,28 @@ class AnimalChessBoard:
 
             if destination_squaretype == (SquareType.TRAP0 if player_id==0 else SquareType.TRAP1):
                 if destination_piece.player is (self._player1 if player_id==0 else self._player0):
-                    # can eat because the piece is in our own trap
-                    logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name} in a trap!")
+                    if really:
+                        # can eat because the piece is in our own trap
+                        logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name} in a trap!")
+                        destination_piece.die()
+                        destination_piece_info = self._players_possessions[1 if player_id==0 else 0].get_piece(destination_piece.animal_type)
+                        destination_piece_info.position = None
+
+                        # simply move
+                        self._simply_move(player_id, animal, destination)
+
+                    return True
+            elif piece.can_eat(destination_piece) and destination_squaretype not in {SquareType.TRAP0, SquareType.TRAP1}:
+                if really:
+                    # eat
+                    logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name}!")
                     destination_piece.die()
                     destination_piece_info = self._players_possessions[1 if player_id==0 else 0].get_piece(destination_piece.animal_type)
                     destination_piece_info.position = None
 
                     # simply move
                     self._simply_move(player_id, animal, destination)
-                    return True
-            elif piece.can_eat(destination_piece) and destination_squaretype not in {SquareType.TRAP0, SquareType.TRAP1}:
-                # eat
-                logger.info(f"{piece.animal_type.name} is eating {destination_piece.animal_type.name}!")
-                destination_piece.die()
-                destination_piece_info = self._players_possessions[1 if player_id==0 else 0].get_piece(destination_piece.animal_type)
-                destination_piece_info.position = None
 
-                # simply move
-                self._simply_move(player_id, animal, destination)
                 return True
             else:
                 logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
@@ -205,13 +210,30 @@ class AnimalChessBoard:
 
         # determine if this player wins
         if self._map.get_square_type(*destination) in {SquareType.CAVE0, SquareType.CAVE1}:
-            if (player_id == 0 and self._map.get_square_type(*destination) == SquareType.CAVE1) or (player_id == 1 and self._map.get_square_type(*destination) == SquareType.CAVE0):
-                logger.info(f"{self._players_possessions[player_id].player.name} has won!")
-                self._players_possessions[player_id].winned = True
+            if (player_id == 0 and self._map.get_square_type(*destination) == SquareType.CAVE1) or (
+                    player_id == 1 and self._map.get_square_type(*destination) == SquareType.CAVE0):
+                if really:
+                    logger.info(f"{self._players_possessions[player_id].player.name} has won!")
+                    self._players_possessions[player_id].winned = True
+                    self._simply_move(player_id, animal, destination)
+                return True
+            else:
+                logger.info("One cannot move his own pieces into his own cave.")
+                return False
 
-        # simple move
-        self._simply_move(player_id, animal, destination)
+        if really:
+            # simple move
+            self._simply_move(player_id, animal, destination)
+
         return True
+
+    def move_piece(
+            self,
+            player_id: Literal[0, 1],
+            animal: AnimalType,
+            destination: tuple[int, int]
+    ) -> bool:  # success: True; failed: False
+        return self._move_piece_really_or_simulatively(player_id, animal, destination, really=True)
 
     def get_board_array(self) -> np.ndarray:
         printboard = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=object)
@@ -222,3 +244,12 @@ class AnimalChessBoard:
             else:
                 printboard[i, j] = ""
         return printboard
+
+    def exhaustively_iterate_available_destinations(
+            self,
+            player_id: Literal[0, 1],
+            animal: AnimalType
+    ) -> Generator[tuple[int, int], None, None]:
+        for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
+            if self._move_piece_really_or_simulatively(player_id, animal, (i, j), really=False):
+                yield (i, j)

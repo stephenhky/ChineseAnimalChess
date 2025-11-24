@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "animalchess"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     {name = "Kwan Yuet Stephen Ho", email = "stephenhky@yahoo.com.hk"}
 ]
@@ -30,7 +30,7 @@ Repository = "https://github.com/stephenhky/ChineseAnimalChess"
 Issues = "https://github.com/stephenhky/ChineseAnimalChess/issues"
 
 [tool.setuptools]
-packages = ["animalchess"]
+packages = ["animalchess", "animalchess.chess", "animalchess.math"]
 zip-safe = false
 package-dir = {"" = "src"}
 
