@@ -233,6 +233,7 @@ class TestActions(unittest.TestCase):
             (new_i, new_j)
             for new_i, new_j in board.exhaustively_iterate_available_destinations(1, AnimalType.CAT)
         ]
+        print(board._move_piece_really_or_simulatively(1, AnimalType.CAT, (8, 2)))
         print(player1_system_cat_possible_destinations)
         print(board._board[8, 2])
         for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
