@@ -30,7 +30,7 @@ Repository = "https://github.com/stephenhky/ChineseAnimalChess"
 Issues = "https://github.com/stephenhky/ChineseAnimalChess/issues"
 
 [tool.setuptools]
-packages = ["animalchess", "animalchess.chess", "animalchess.math"]
+packages = ["animalchess", "animalchess.chess"]
 zip-safe = false
 package-dir = {"" = "src"}
 
