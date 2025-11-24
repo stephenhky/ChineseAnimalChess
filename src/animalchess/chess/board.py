@@ -193,6 +193,9 @@ class AnimalChessBoard:
                         self._simply_move(player_id, animal, destination)
 
                     return True
+                else:
+                    logger.info("Not valid to eat another piece of the same player!")
+                    return False
             elif piece.can_eat(destination_piece) and destination_squaretype not in {SquareType.TRAP0, SquareType.TRAP1}:
                 if really:
                     # eat
