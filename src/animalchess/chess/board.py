@@ -5,6 +5,7 @@ from itertools import product
 import warnings
 
 import numpy as np
+import numpy.typing as npt
 from loguru import logger
 
 from .utils import Piece, AnimalType, AnimalChessBoardMap, SquareType
@@ -235,7 +236,7 @@ class AnimalChessBoard:
     ) -> bool:  # success: True; failed: False
         return self._move_piece_really_or_simulatively(player_id, animal, destination, really=True)
 
-    def get_board_array(self) -> np.ndarray:
+    def get_board_array(self) -> npt.NDArray[str]:
         printboard = np.empty((BOARD_HEIGHT, BOARD_WIDTH), dtype=object)
         for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
             if self._board[i, j] is not None:
