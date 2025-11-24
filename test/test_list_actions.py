@@ -14,7 +14,6 @@ class TestActions(unittest.TestCase):
         self.board = AnimalChessBoard(self.player0, self.player1)
 
     def test_corner(self):
-        # Create a custom board for eating tests
         player0_possession = PlayerPossession(self.player0, 0, reset=False)
         player1_possession = PlayerPossession(self.player1, 1, reset=False)
         player0_possession.set_piece_info(AnimalType.LION, (0, 0))
@@ -46,6 +45,54 @@ class TestActions(unittest.TestCase):
                 self.assertIn((i, j), player1_system_lion_possible_destinations)
             else:
                 self.assertFalse((i, j) in player1_system_lion_possible_destinations)
+
+    def test_jumps(self):
+        player0_possession = PlayerPossession(self.player0, 0, reset=False)
+        player1_possession = PlayerPossession(self.player1, 1, reset=False)
+        player0_possession.set_piece_info(AnimalType.LION, (3, 3))
+        player0_possession.set_piece_info(AnimalType.RAT, (3, 2))
+        player1_possession.set_piece_info(AnimalType.LION, (7, 1))
+        board = AnimalChessBoard(
+            self.player0,
+            self.player1,
+            initial_players_possessions=[player0_possession, player1_possession]
+        )
+
+        player0_lion_possible_destinations = [(2, 3), (4, 3), (3, 6)]
+        player0_system_lion_possible_destinations = [
+            (new_i, new_j)
+            for new_i, new_j in board.exhaustively_iterate_available_destinations(0, AnimalType.LION)
+        ]
+        for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
+            if (i, j) in player0_lion_possible_destinations:
+                self.assertIn((i, j), player0_system_lion_possible_destinations)
+            else:
+                self.assertFalse((i, j) in player0_system_lion_possible_destinations)
+
+        player1_lion_possible_destinations = [(7, 0), (7, 2), (8, 1), (2, 1)]
+        player1_system_lion_possible_destinations = [
+            (new_i, new_j)
+            for new_i, new_j in board.exhaustively_iterate_available_destinations(1, AnimalType.LION)
+        ]
+        for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
+            if (i, j) in player1_lion_possible_destinations:
+                self.assertIn((i, j), player1_system_lion_possible_destinations)
+            else:
+                self.assertFalse((i, j) in player1_system_lion_possible_destinations)
+
+        # test the rat amphibian moves
+        player0_rat_possible_destinations = [(3, 1), (2, 2), (4, 2)]
+        player0_system_rat_possible_destinations = [
+            (new_i, new_j)
+            for new_i, new_j in board.exhaustively_iterate_available_destinations(0, AnimalType.RAT)
+        ]
+        for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
+            if (i, j) in player0_rat_possible_destinations:
+                self.assertIn((i, j), player0_system_rat_possible_destinations)
+            else:
+                self.assertFalse((i, j) in player0_system_rat_possible_destinations)
+
+
 
 
 if __name__ == '__main__':
