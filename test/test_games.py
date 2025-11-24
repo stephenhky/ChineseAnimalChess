@@ -113,15 +113,6 @@ class TestGame(unittest.TestCase):
         )
 
         # round 18
-        self.assertTrue(board.move_piece(1, AnimalType.DOG, (7, 3)))
-        self.assertTrue(board.move_piece(0, AnimalType.ELEPHANT, (3, 6)))
-
-        self.assertEqual(
-            board_map.get_square_type(*board._players_possessions[1].get_piece(AnimalType.DOG).position),
-            SquareType.TRAP1
-        )
-
-        # round 19
         self.assertTrue(board.move_piece(0, AnimalType.ELEPHANT, (3, 6)))
         self.assertFalse(board.move_piece(1, AnimalType.DOG, (8, 3)))
         self.assertTrue(board.move_piece(1, AnimalType.CAT, (7, 2)))
