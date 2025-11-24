@@ -51,7 +51,7 @@ class TestActions(unittest.TestCase):
         player1_possession = PlayerPossession(self.player1, 1, reset=False)
         player0_possession.set_piece_info(AnimalType.LION, (3, 3))
         player0_possession.set_piece_info(AnimalType.RAT, (3, 2))
-        player1_possession.set_piece_info(AnimalType.LION, (7, 1))
+        player1_possession.set_piece_info(AnimalType.LION, (6, 1))
         board = AnimalChessBoard(
             self.player0,
             self.player1,
@@ -69,7 +69,7 @@ class TestActions(unittest.TestCase):
             else:
                 self.assertFalse((i, j) in player0_system_lion_possible_destinations)
 
-        player1_lion_possible_destinations = [(7, 0), (7, 2), (8, 1), (2, 1)]
+        player1_lion_possible_destinations = [(6, 0), (6, 2), (7, 1), (2, 1)]
         player1_system_lion_possible_destinations = [
             (new_i, new_j)
             for new_i, new_j in board.exhaustively_iterate_available_destinations(1, AnimalType.LION)
