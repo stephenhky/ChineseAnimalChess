@@ -164,16 +164,19 @@ class AnimalChessBoard:
         piece_info = self._players_possessions[player_id].get_piece(animal)
         piece = piece_info.piece
         if piece.dead:
-            logger.info(f"Player {self._players_possessions[player_id].player.name}: {piece.animal_type.name} is dead")
+            if really:
+                logger.info(f"Player {self._players_possessions[player_id].player.name}: {piece.animal_type.name} is dead")
             return False
 
         initial_position = piece_info.position
         if not piece.is_valid_move(initial_position, destination):
-            logger.info("Not a valid move.")
+            if really:
+                logger.info("Not a valid move.")
             return False
 
         if self._any_pieces_in_between(initial_position, destination):
-            logger.info("There are pieces in between.")
+            if really:
+                logger.info("There are pieces in between.")
             return False
 
         if self._board[*destination] is not None and isinstance(self._board[*destination], Piece):
@@ -194,7 +197,8 @@ class AnimalChessBoard:
 
                     return True
                 else:
-                    logger.info("Not valid to eat another piece of the same player!")
+                    if really:
+                        logger.info("Not valid to eat another piece of the same player!")
                     return False
             elif piece.can_eat(destination_piece) and destination_squaretype not in {SquareType.TRAP0, SquareType.TRAP1}:
                 if really:
@@ -209,7 +213,8 @@ class AnimalChessBoard:
 
                 return True
             else:
-                logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
+                if really:
+                    logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
                 return False
 
         # determine if this player wins
@@ -222,7 +227,8 @@ class AnimalChessBoard:
                     self._simply_move(player_id, animal, destination)
                 return True
             else:
-                logger.info("One cannot move his own pieces into his own cave.")
+                if really:
+                    logger.info("One cannot move his own pieces into his own cave.")
                 return False
 
         if really:
