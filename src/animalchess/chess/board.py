@@ -208,13 +208,20 @@ class AnimalChessBoard:
                 logger.info(f"{piece.animal_type.name} cannot eat {destination_piece.animal_type.name}!")
                 return False
 
-        if really:
-            # determine if this player wins
-            if self._map.get_square_type(*destination) in {SquareType.CAVE0, SquareType.CAVE1}:
-                if (player_id == 0 and self._map.get_square_type(*destination) == SquareType.CAVE1) or (player_id == 1 and self._map.get_square_type(*destination) == SquareType.CAVE0):
+        # determine if this player wins
+        if self._map.get_square_type(*destination) in {SquareType.CAVE0, SquareType.CAVE1}:
+            if (player_id == 0 and self._map.get_square_type(*destination) == SquareType.CAVE1) or (
+                    player_id == 1 and self._map.get_square_type(*destination) == SquareType.CAVE0):
+                if really:
                     logger.info(f"{self._players_possessions[player_id].player.name} has won!")
                     self._players_possessions[player_id].winned = True
+                    self._simply_move(player_id, animal, destination)
+                return True
+            else:
+                logger.info("One cannot move his own pieces into his own cave.")
+                return False
 
+        if really:
             # simple move
             self._simply_move(player_id, animal, destination)
 
