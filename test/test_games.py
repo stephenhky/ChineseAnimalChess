@@ -121,3 +121,7 @@ class TestGame(unittest.TestCase):
         self.assertTrue(board.move_piece(0, AnimalType.RAT, (8, 3)))
         self.assertTrue(board._players_possessions[0].winned)
         self.assertFalse(board._players_possessions[1].winned)
+
+
+if __name__ == '__main__':
+    unittest.main()
