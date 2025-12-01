@@ -17,7 +17,7 @@ class TestCloneBoard(unittest.TestCase):
         for _ in range(5):
             # player 0
             # randomly pick animal type
-            picked_animal_type = AnimalType(choice(range(len(AnimalType))))
+            picked_animal_type = AnimalType(choice(range(1, len(AnimalType)+1)))
             picked_position = choice(
                 list(
                     board.exhaustively_iterate_available_destinations(0, picked_animal_type)
@@ -26,7 +26,7 @@ class TestCloneBoard(unittest.TestCase):
             board.move_piece(0, picked_animal_type, picked_position)
 
             # player 1
-            picked_animal_type = AnimalType(choice(range(len(AnimalType))))
+            picked_animal_type = AnimalType(choice(range(1, len(AnimalType)+1)))
             picked_position = choice(
                 list(
                     board.exhaustively_iterate_available_destinations(1, picked_animal_type)
