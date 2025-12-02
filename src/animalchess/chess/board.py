@@ -1,5 +1,5 @@
 
-from typing import Literal, Generator, Optional
+from typing import Literal, Generator, Optional, Self
 from dataclasses import dataclass
 from itertools import product
 import warnings
@@ -93,6 +93,13 @@ class PlayerPossession:
     @winned.setter
     def winned(self, win: bool) -> None:
         self._winned = win
+
+    def clone(self) -> Self:
+        player_possession = PlayerPossession(self._player, 0, reset=False)  # player ID is useless in this line
+        player_possession.winned = self.winned
+        for animal_type, piece_info in self._pieces.items():
+            player_possession.set_piece_info(animal_type, piece_info.position)
+        return player_possession
 
 
 class AnimalChessBoard:
@@ -263,3 +270,12 @@ class AnimalChessBoard:
         for i, j in product(range(BOARD_HEIGHT), range(BOARD_WIDTH)):
             if self._move_piece_really_or_simulatively(player_id, animal, (i, j), really=False):
                 yield (i, j)
+
+    def clone(self) -> Self:
+        return AnimalChessBoard(
+            self._player0, self._player1,
+            [
+                self._players_possessions[0].clone(),
+                self._players_possessions[1].clone()
+            ]
+        )
